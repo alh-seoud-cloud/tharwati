@@ -570,9 +570,11 @@ function captureWorkspacePayload(src){const out={};FINANCIAL_KEYS.forEach(k=>out
 function applyWorkspacePayload(payload){if(!payload)return;FINANCIAL_KEYS.forEach(k=>{D[k]=cloneData(payload[k]??seed[k]??[])});}
 function persistCurrentWorkspacePayload(d=D){if(!d.workspaces||!d.currentWorkspaceId)return;const ws=d.workspaces.find(w=>w.id===d.currentWorkspaceId);if(ws)ws.data=captureWorkspacePayload(d)}
 
-let D=load();
-let cur="dashboard";
-
+var D=load();
+window.D = D;
+var cur="dashboard";
+window.cur = cur;
+  
 function load(){const r=localStorage.getItem(SK);
 if(!r){const d=structuredClone(seed);return upgradeData(d)}
 try{return upgradeData(JSON.parse(r))}catch{return upgradeData(structuredClone(seed))}}
