@@ -570,11 +570,27 @@ function captureWorkspacePayload(src){const out={};FINANCIAL_KEYS.forEach(k=>out
 function applyWorkspacePayload(payload){if(!payload)return;FINANCIAL_KEYS.forEach(k=>{D[k]=cloneData(payload[k]??seed[k]??[])});}
 function persistCurrentWorkspacePayload(d=D){if(!d.workspaces||!d.currentWorkspaceId)return;const ws=d.workspaces.find(w=>w.id===d.currentWorkspaceId);if(ws)ws.data=captureWorkspacePayload(d)}
 
+
+// ============ ACCOUNT MAPPING DEFINITIONS (must be defined before load/upgradeData) ============
+const ACCOUNT_MAPPING_DEFS={
+ expenses:{label:"المصروفات",fallback:"مصروفات أخرى",group:"فئة مصروف",accType:"مصروف"},
+ income:{label:"الإيرادات",fallback:"إيرادات أخرى",group:"فئة إيراد",accType:"إيراد"},
+ debts:{label:"ديون عليّ",fallback:"ديون علي",group:"حسابات النظام — مطلوبات",accType:"مطلوبات"},
+ loans:{label:"سلف لي عند الناس",fallback:"سلف لي عند الناس",group:"حسابات النظام — أصول",accType:"أصول"},
+ installments:{label:"الأقساط",fallback:"حساب الأقساط",group:"حسابات النظام — مطلوبات",accType:"مطلوبات"},
+ custodies:{label:"العهد",fallback:"حساب العهد",group:"حسابات النظام — عهد",accType:"أصول"},
+ investments:{label:"الاستثمارات",fallback:"الاستثمارات",group:"حسابات النظام — أصول",accType:"أصول"},
+ assets:{label:"الأصول",fallback:"الأصول",group:"حسابات النظام — أصول",accType:"أصول"},
+ properties:{label:"العقارات",fallback:"العقارات",group:"حسابات النظام — أصول",accType:"أصول"},
+ gold:{label:"الذهب",fallback:"الذهب",group:"حسابات النظام — أصول",accType:"أصول"},
+ savings:{label:"الادخار",fallback:"الادخار",group:"حسابات النظام — أصول",accType:"أصول"},
+ subscriptions:{label:"الاشتراكات",fallback:"الاشتراكات",group:"حسابات النظام — مصروفات",accType:"مصروف"}
+};
 var D=load();
 window.D = D;
 var cur="dashboard";
 window.cur = cur;
-  
+
 function load(){const r=localStorage.getItem(SK);
 if(!r){const d=structuredClone(seed);return upgradeData(d)}
 try{return upgradeData(JSON.parse(r))}catch{return upgradeData(structuredClone(seed))}}
@@ -817,20 +833,7 @@ function ensureSystemAccount(screen){
 
 
 // ============ ACCOUNT MAPPING (ربط الحسابات المحاسبية) ============
-const ACCOUNT_MAPPING_DEFS={
- expenses:{label:"المصروفات",fallback:"مصروفات أخرى",group:"فئة مصروف",accType:"مصروف"},
- income:{label:"الإيرادات",fallback:"إيرادات أخرى",group:"فئة إيراد",accType:"إيراد"},
- debts:{label:"ديون عليّ",fallback:"ديون علي",group:"حسابات النظام — مطلوبات",accType:"مطلوبات"},
- loans:{label:"سلف لي عند الناس",fallback:"سلف لي عند الناس",group:"حسابات النظام — أصول",accType:"أصول"},
- installments:{label:"الأقساط",fallback:"حساب الأقساط",group:"حسابات النظام — مطلوبات",accType:"مطلوبات"},
- custodies:{label:"العهد",fallback:"حساب العهد",group:"حسابات النظام — عهد",accType:"أصول"},
- investments:{label:"الاستثمارات",fallback:"الاستثمارات",group:"حسابات النظام — أصول",accType:"أصول"},
- assets:{label:"الأصول",fallback:"الأصول",group:"حسابات النظام — أصول",accType:"أصول"},
- properties:{label:"العقارات",fallback:"العقارات",group:"حسابات النظام — أصول",accType:"أصول"},
- gold:{label:"الذهب",fallback:"الذهب",group:"حسابات النظام — أصول",accType:"أصول"},
- savings:{label:"الادخار",fallback:"الادخار",group:"حسابات النظام — أصول",accType:"أصول"},
- subscriptions:{label:"الاشتراكات",fallback:"الاشتراكات",group:"حسابات النظام — مصروفات",accType:"مصروف"}
-};
+
 function ensureAccountMapping(){
  if(!D.settings.accountMapping)D.settings.accountMapping={};
  Object.entries(ACCOUNT_MAPPING_DEFS).forEach(([k,d])=>{
@@ -1067,7 +1070,7 @@ function go(p,...args){
 renderBottomNav();
 if(p==="entry"){if(!requirePerm("add","ليس لديك صلاحية إضافة قيود داخل ملف العمل الحالي"))return;openEntry();return}
 closeMobileMenu();
-cur=p;
+cur=p; window.cur=cur;
 document.querySelectorAll(".nav-group-items button").forEach(b=>b.classList.remove("active"));
 const b=$("n-"+p);if(b){b.classList.add("active");const group=b.closest(".nav-group-items");if(group){group.classList.remove("collapsed");const gi=(group.id||"").replace("gItems","");const ar=$("gArrow"+gi);if(ar)ar.innerText="▼";}}
 document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.remove("active"));
